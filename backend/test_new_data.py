@@ -5,7 +5,7 @@ Independent test harness for the SLA Shield AI queue optimizer.
 
 WHAT THIS SCRIPT DOES
 ----------------------
-- Loads the six ALREADY-TRAINED models from models/*.pkl (read-only).
+- Loads the six ALREADY-TRAINED models from models/*.pkl (read-only).0
 - Does NOT retrain anything, does NOT touch queue_optimizer.py, does
   NOT overwrite any .pkl file.
 - Generates 100 fresh synthetic queue scenarios (20 per category x 5
