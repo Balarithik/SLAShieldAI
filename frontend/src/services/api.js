@@ -14,8 +14,39 @@ const API_BASE = normalizeApiBase();
 
 export const api = {
   async getHealth() {
-    const res = await fetch(`${API_BASE}/health/`);
+    const res = await fetch(`${API_BASE}/health/`, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Backend health check failed: ${res.status}`);
+    }
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('Backend health endpoint did not return JSON');
+    }
+
     return res.json();
+  },
+
+  async isBackendConnected() {
+    try {
+      const result = await this.getHealth();
+      return Boolean(
+        result && (
+          result.status === 'HEALTHY' ||
+          result.status === 'healthy' ||
+          result.ai_engine === 'ONLINE'
+        )
+      );
+    } catch (error) {
+      return false;
+    }
   },
 
   async getDashboardMetrics() {

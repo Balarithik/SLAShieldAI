@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Header } from './components/Header';
 import { EmptyState } from './components/EmptyState';
 import { UploadModal } from './components/UploadModal';
@@ -23,6 +23,7 @@ export default function App() {
   // Dashboard data state
   const [hasData, setHasData] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [backendConnected, setBackendConnected] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [beforeQueue, setBeforeQueue] = useState([]);
@@ -30,6 +31,24 @@ export default function App() {
 
   // Ticket detail modal
   const [selectedTicket, setSelectedTicket] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkBackendHealth = async () => {
+      const connected = await api.isBackendConnected();
+      if (!isMounted) return;
+      setBackendConnected(connected);
+    };
+
+    checkBackendHealth();
+    const healthInterval = window.setInterval(checkBackendHealth, 20000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(healthInterval);
+    };
+  }, []);
 
   // Fetch all dashboard data from Django
   const fetchAllData = useCallback(async () => {
@@ -81,6 +100,7 @@ export default function App() {
         onRunOptimization={handleRunOptimization}
         isOptimizing={isOptimizing}
         hasData={hasData}
+        backendConnected={backendConnected}
       />
 
       <div className="soc-container">

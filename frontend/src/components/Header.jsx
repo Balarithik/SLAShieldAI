@@ -1,7 +1,13 @@
 import React from 'react';
 import { Shield, UploadCloud, RefreshCw } from 'lucide-react';
 
-export function Header({ onOpenUpload, onRunOptimization, isOptimizing, hasData }) {
+export function Header({
+  onOpenUpload,
+  onRunOptimization,
+  isOptimizing,
+  hasData,
+  backendConnected = false,
+}) {
   return (
     <header className="soc-header">
       <div className="soc-header-inner">
@@ -15,7 +21,16 @@ export function Header({ onOpenUpload, onRunOptimization, isOptimizing, hasData 
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="header-actions">
+          <div
+            className={`connection-indicator ${backendConnected ? 'connected' : 'disconnected'}`}
+            role="status"
+            aria-live="polite"
+          >
+            <span className="connection-dot" />
+            {backendConnected ? 'Connected' : 'Not connected'}
+          </div>
+
           {hasData && (
             <button
               className="btn btn-secondary"
