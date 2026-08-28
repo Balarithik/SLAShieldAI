@@ -1,4 +1,16 @@
-const API_BASE = '/api';
+const normalizeApiBase = () => {
+  const raw = import.meta.env.VITE_API_BASE_URL || import.meta.env.BACKEND_URL || '/api';
+  if (!raw || raw === '/') return '/api';
+
+  if (/^https?:\/\//i.test(raw)) {
+    const sanitized = raw.replace(/\/+$/, '');
+    return sanitized.endsWith('/api') ? sanitized : `${sanitized}/api`;
+  }
+
+  return raw.replace(/\/+$/, '');
+};
+
+const API_BASE = normalizeApiBase();
 
 export const api = {
   async getHealth() {
