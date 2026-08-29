@@ -7,6 +7,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+import logging
+
+logger = logging.getLogger(__name__)
 
 from api.models import Analyst, SLARule, Ticket, QueueRun, QueueDecision
 from api.serializers import (
@@ -34,6 +37,19 @@ class HealthCheckView(APIView):
         })
 
 
+# Diagnostic endpoint to help debug CORS / origin issues in production
+class DiagnosticCorsView(APIView):
+    def get(self, request):
+        origin = request.META.get('HTTP_ORIGIN') or request.headers.get('Origin')
+        # Echo back some useful header info for debugging
+        headers = {k: v for k, v in request.META.items() if k.startswith('HTTP_')}
+        return Response({
+            "success": True,
+            "origin": origin,
+            "echo_headers": headers
+        })
+
+
 class DashboardMetricsView(APIView):
     def get(self, request):
         metrics = DashboardService.get_dashboard_metrics()
@@ -44,6 +60,14 @@ class TicketUploadView(APIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def post(self, request):
+        try:
+            origin = request.META.get('HTTP_ORIGIN') or request.headers.get('Origin')
+        except Exception:
+            origin = None
+        content_length = request.META.get('CONTENT_LENGTH')
+        file_present = bool(request.FILES.get('file'))
+        logger.info("Ticket upload request received. origin=%s content_length=%s file_present=%s", origin, content_length, file_present)
+
         file_obj = request.FILES.get('file')
         replace_queue = request.data.get('replace_queue', 'true').lower() in ['true', '1', True]
         

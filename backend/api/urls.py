@@ -1,6 +1,7 @@
 from django.urls import path
 from api.views import (
     HealthCheckView, DashboardMetricsView, TicketUploadView,
+    DiagnosticCorsView,
     TicketListCreateView, TicketDetailView, QueueOptimizeView,
     QueueCurrentView, QueueBeforeView, QueueAfterView, QueueHistoryView,
     AnalystListCreateView, AnalystDetailView, SLARuleListUpdateView,
@@ -11,6 +12,7 @@ urlpatterns = [
     # Health & System
     path('health/', HealthCheckView.as_view(), name='api-health'),
     path('dashboard/metrics/', DashboardMetricsView.as_view(), name='dashboard-metrics'),
+    path('debug/cors/', DiagnosticCorsView.as_view(), name='debug-cors'),
     
     # Tickets
     path('tickets/upload/', TicketUploadView.as_view(), name='tickets-upload'),

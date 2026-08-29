@@ -1,0 +1,7 @@
+__pychache__/
+venv/
+db.sqlite3
+scenario_summary.csv
+independent_queue_test_results.csv
+.env
+.env.example
