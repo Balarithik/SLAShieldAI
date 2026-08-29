@@ -2,7 +2,6 @@
 
 AI-Powered Security Incident Queue Optimization & SLA Breach Prevention
 
-Live Link : https://slashieldai.onrender.com/
 ---
 
 ## Table of Contents
@@ -80,19 +79,19 @@ SLAShield AI ingests an incident queue (CSV/JSON or manual entry), validates and
 
 ```mermaid
 flowchart TD
-  User[User (SOC Analyst / Admin)] -->|Uploads CSV / Interacts| Frontend[React (Vite) Frontend]
-  Frontend -->|REST| Backend[Django REST API]
+  User[User] -->|Upload / Interact| Frontend[Frontend]
+  Frontend -->|REST| Backend[Backend]
 
   subgraph BackendServices
-    Backend --> DB[(SQLite DB)]
-    Backend --> MLService[ML Service (joblib models)]
+    Backend --> DB[(SQLite)]
+    Backend --> MLService[ML Service]
     Backend --> QueueService[Queue Service]
-    QueueService --> Optimizer[queue_optimizer.py]
-    MLService --> Models[(backend/models/*.pkl)]
+    QueueService --> Optimizer[Optimizer]
+    MLService --> Models[(models/*.pkl)]
   end
 
-  Optimizer -->|Decisions / Metrics| QueueService
-  QueueService -->|Persist run/logs| DB
+  Optimizer -->|Decisions| QueueService
+  QueueService -->|Persist| DB
   Backend -->|JSON| Frontend
 
   Frontend -->|Visualize| User
@@ -402,3 +401,9 @@ SLAShield AI demonstrates a focused, measurable approach to reduce expected SLA 
 
 ---
 
+If you want, I can now:
+
+1. Add an `API.md` with full example requests and sample JSON payloads.
+2. Add a short `DEPLOYMENT.md` with Render / Docker Compose examples (you must confirm target platform).
+
+Which should I add next?
