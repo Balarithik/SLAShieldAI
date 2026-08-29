@@ -237,7 +237,7 @@ export function UploadModal({ isOpen, onClose, onUploadComplete }) {
           }}>
             <CheckCircle2 size={16} />
             <div>
-              <strong>Success!</strong> Imported {uploadResult.count} tickets.
+              <strong>Success!</strong> Imported {uploadResult.count} tickets. And Optimising queue for AI analysis. This may take a few moments.
             </div>
           </div>
         )}

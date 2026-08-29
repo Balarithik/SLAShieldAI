@@ -23,6 +23,7 @@ export default function App() {
   // Dashboard data state
   const [hasData, setHasData] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [processingState, setProcessingState] = useState({ stageIndex: 0, progress: 0, message: 'Waiting for data upload.' });
   const [backendConnected, setBackendConnected] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
   const [tickets, setTickets] = useState([]);
@@ -75,21 +76,26 @@ export default function App() {
   // Handle upload complete
   const handleUploadComplete = useCallback(async (info) => {
     setUploadInfo(info || uploadInfo);
+    setProcessingState({ stageIndex: 6, progress: 100, message: 'AI analysis complete. Refreshing the dashboard...' });
     await fetchAllData();
   }, [fetchAllData, uploadInfo]);
 
   // Re-optimize queue
   const handleRunOptimization = async () => {
     setIsOptimizing(true);
+    setProcessingState({ stageIndex: 0, progress: 18, message: 'Uploading and validating queue input...' });
     try {
       const res = await api.optimizeQueue();
       if (res.success) {
+        setProcessingState({ stageIndex: 3, progress: 62, message: 'Running AI inference and queue optimization...' });
         await fetchAllData();
+        setProcessingState({ stageIndex: 6, progress: 100, message: 'AI analysis complete. Dashboard updated.' });
       }
     } catch (err) {
       console.error('Optimization error:', err);
+      setProcessingState({ stageIndex: 0, progress: 0, message: 'AI processing failed. Please retry.' });
     } finally {
-      setIsOptimizing(false);
+      setTimeout(() => setIsOptimizing(false), 400);
     }
   };
 
@@ -105,7 +111,7 @@ export default function App() {
 
       <div className="soc-container">
         {isOptimizing ? (
-          <LoadingState />
+          <LoadingState processingState={processingState} />
         ) : !hasData ? (
           <EmptyState onOpenUpload={() => setShowUpload(true)} />
         ) : (
@@ -122,6 +128,7 @@ export default function App() {
               metrics={dashboardData?.kpi_metrics}
               activeCount={dashboardData?.active_tickets_count}
               riskBreakdown={dashboardData?.risk_tier_breakdown}
+              overallSlaRisk={dashboardData?.overall_sla_breach_probability}
             />
 
             {/* Active Tickets Table */}

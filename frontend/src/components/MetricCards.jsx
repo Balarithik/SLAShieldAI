@@ -1,16 +1,28 @@
 import React from 'react';
 import { TrendingDown, ArrowDownRight, ArrowUpRight, Minus, RefreshCw, AlertTriangle, ArrowUp, Check } from 'lucide-react';
 
-export function MetricCards({ metrics, activeCount, riskBreakdown }) {
+export function MetricCards({ metrics, activeCount, riskBreakdown, overallSlaRisk }) {
   const avoided = metrics?.breaches_avoided ?? 0;
   const reductionPct = metrics?.breach_reduction_pct ?? 0;
   const highRisk = riskBreakdown?.total_high_risk ?? 0;
+  const overallRisk = Number(overallSlaRisk ?? 0);
+  const riskClass = overallRisk >= 80 ? 'Critical Risk' : overallRisk >= 60 ? 'High Risk' : overallRisk >= 30 ? 'Medium Risk' : 'Low Risk';
+  const riskColor = overallRisk >= 80 ? '#fb7185' : overallRisk >= 60 ? '#fbbf24' : overallRisk >= 30 ? '#f59e0b' : '#34d399';
 
   return (
     <div className="metric-row">
       <div className="metric-box">
         <div className="metric-label">Active Tickets</div>
         <div className="metric-value">{activeCount ?? 0}</div>
+      </div>
+
+      <div className="metric-box">
+        <div className="metric-label">SLA Breach Risk</div>
+        <div className="metric-value" style={{ color: riskColor }}>{overallRisk.toFixed(0)}%</div>
+        <div className="metric-subtext" style={{ color: riskColor }}>{riskClass}</div>
+        <div style={{ marginTop: '10px', width: '100%', height: '8px', background: 'rgba(148, 163, 184, 0.18)', borderRadius: '999px', overflow: 'hidden' }}>
+          <div style={{ width: `${Math.min(overallRisk, 100)}%`, height: '100%', background: riskColor, borderRadius: '999px' }} />
+        </div>
       </div>
 
       <div className="metric-box">

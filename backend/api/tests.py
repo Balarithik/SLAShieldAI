@@ -67,6 +67,8 @@ class APITests(TestCase):
         self.assertIn("countdown_tickets", response.data)
         self.assertIn("analyst_fleet", response.data)
         self.assertIn("escalation_queue", response.data)
+        self.assertIn("overall_sla_breach_probability", response.data)
+        self.assertIn("risk_tier_breakdown", response.data)
         self.assertEqual(response.data['active_tickets_count'], 20)
 
     def test_queue_optimization(self):

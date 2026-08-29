@@ -103,28 +103,29 @@ export function TicketTable({ tickets, onTicketClick }) {
           <thead>
             <tr>
               <th>Ticket ID</th>
-              <th>Incident Type</th>
               <th>Severity</th>
-              <th>Priority</th>
-              <th>Analyst</th>
               <th>SLA</th>
-              <th>Countdown</th>
               <th>Breach Prob.</th>
-              <th>Status</th>
+              <th>Analyst</th>
+              <th>Queue Pos.</th>
+              <th>Queue Delay</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {paged.length === 0 ? (
               <tr>
-                <td colSpan={9} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
-                  {(tickets || []).length === 0 ? 'No tickets loaded' : 'No tickets match current filters'}
+                <td colSpan={8} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
+                  {(tickets || []).length === 0 ? 'No ticket data available' : 'No tickets match current filters'}
                 </td>
               </tr>
             ) : paged.map(t => {
-              const prob = t.sla_breach_probability_after ?? t.sla_breach_probability_before ?? 0;
+              const prob = Number(t.sla_breach_probability_after ?? t.sla_breach_probability_before ?? 0);
               const remaining = typeof t.remaining_seconds === 'number'
                 ? Math.max(0, t.remaining_seconds)
                 : (t.deadline ? Math.max(0, Math.floor((new Date(t.deadline).getTime() - now) / 1000)) : null);
+              const queueDelay = Number(t.predicted_queue_delay ?? 0);
+              const action = t.recommended_action || t.action || 'KEEP_CURRENT';
 
               return (
                 <tr key={t.ticket_id} onClick={() => onTicketClick && onTicketClick(t)}>
@@ -133,20 +134,19 @@ export function TicketTable({ tickets, onTicketClick }) {
                       {t.ticket_id}
                     </span>
                   </td>
-                  <td>{t.incident_type}</td>
                   <td><SeverityBadge severity={t.predicted_severity} /></td>
-                  <td><PriorityBadge priority={t.priority} /></td>
-                  <td className="font-mono">{t.assigned_analyst_after || t.assigned_analyst}</td>
-                  <td className="font-mono">{t.sla_hours}h</td>
                   <td>
                     <span className="font-mono" style={{ color: countdownColor(remaining, t.sla_hours), fontWeight: 600 }}>
                       {remaining != null ? formatCountdown(remaining) : '—'}
                     </span>
                   </td>
                   <td><RiskBadge value={prob} /></td>
+                  <td className="font-mono">{t.assigned_analyst_after || t.assigned_analyst}</td>
+                  <td className="font-mono">{t.new_position ?? t.original_position ?? '-'}</td>
+                  <td className="font-mono">{Number.isFinite(queueDelay) ? `${queueDelay.toFixed(1)}m` : '—'}</td>
                   <td>
-                    <span className="badge" style={{ background: 'rgba(100,116,139,0.15)', color: '#94a3b8', border: '1px solid #334155' }}>
-                      {t.status}
+                    <span className={`badge ${action.toLowerCase().includes('reassign') ? 'badge-reassign' : action.toLowerCase().includes('escalat') ? 'badge-escalate' : action.toLowerCase().includes('priorit') ? 'badge-prioritize' : 'badge-keep'}`}>
+                      {action.replace('_', ' ')}
                     </span>
                   </td>
                 </tr>

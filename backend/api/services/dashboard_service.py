@@ -29,17 +29,22 @@ class DashboardService:
         high_risk_count = 0
         medium_risk_count = 0
         low_risk_count = 0
+        all_probs = []
 
         for t in active_tickets_qs:
             prob = t.sla_breach_probability_after if t.sla_breach_probability_after is not None else (t.sla_breach_probability_before or 0.0)
-            if prob >= 70:
+            if prob is not None:
+                all_probs.append(float(prob))
+            if prob >= 80:
                 critical_risk_count += 1
-            elif prob >= 50:
+            elif prob >= 60:
                 high_risk_count += 1
-            elif prob >= 25:
+            elif prob >= 30:
                 medium_risk_count += 1
             else:
                 low_risk_count += 1
+
+        overall_sla_breach_probability = round((sum(all_probs) / len(all_probs)), 2) if all_probs else 0.0
 
         # SLA Countdown radar (top 15 tickets closest to SLA breach/deadline)
         countdown_tickets = []
@@ -200,6 +205,8 @@ class DashboardService:
             "has_data": total_active > 0,
             "system_status": "ONLINE",
             "active_tickets_count": total_active,
+            "overall_sla_breach_probability": overall_sla_breach_probability,
+            "overall_sla_breach_probability_label": "Low Risk" if overall_sla_breach_probability < 30 else "Medium Risk" if overall_sla_breach_probability < 60 else "High Risk" if overall_sla_breach_probability < 80 else "Critical Risk",
             "severity_breakdown": sev_counts,
             "risk_tier_breakdown": {
                 "critical": critical_risk_count,
@@ -207,6 +214,12 @@ class DashboardService:
                 "medium": medium_risk_count,
                 "low": low_risk_count,
                 "total_high_risk": critical_risk_count + high_risk_count
+            },
+            "risk_distribution": {
+                "low": low_risk_count,
+                "medium": medium_risk_count,
+                "high": high_risk_count,
+                "critical": critical_risk_count
             },
             "kpi_metrics": kpi_metrics,
             "countdown_tickets": countdown_tickets,
