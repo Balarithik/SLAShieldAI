@@ -497,4 +497,13 @@ class MLPerformanceView(APIView):
     def get(self, request):
         ml_service = MLService.get_instance()
         info = ml_service.get_model_info()
+        
+        # Compute actual performance metrics
+        try:
+            metrics = ml_service.compute_model_performance()
+            info['performance_metrics'] = metrics
+        except Exception as e:
+            info['performance_metrics'] = None
+            info['metrics_error'] = str(e)
+        
         return Response(info)
