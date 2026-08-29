@@ -7,6 +7,7 @@ export function UploadModal({ isOpen, onClose, onUploadComplete }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
+  const [optimizationStatus, setOptimizationStatus] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
   if (!isOpen) return null;
@@ -46,6 +47,7 @@ export function UploadModal({ isOpen, onClose, onUploadComplete }) {
   const removeFile = () => {
     setFile(null);
     setUploadResult(null);
+    setOptimizationStatus(null);
     setErrorMsg(null);
   };
 
@@ -57,6 +59,7 @@ export function UploadModal({ isOpen, onClose, onUploadComplete }) {
 
     setIsUploading(true);
     setErrorMsg(null);
+    setOptimizationStatus(null);
 
     try {
       const formData = new FormData();
@@ -64,6 +67,7 @@ export function UploadModal({ isOpen, onClose, onUploadComplete }) {
       formData.append('replace_queue', 'true');
 
       const res = await api.uploadTickets(formData);
+
       if (res.success) {
         setUploadResult({
           filename: res.filename,
@@ -71,8 +75,18 @@ export function UploadModal({ isOpen, onClose, onUploadComplete }) {
           status: "Validated & Imported Successfully"
         });
 
-        // Run optimization on the uploaded batch
-        await api.optimizeQueue();
+        try {
+          const optimizationResult = await api.optimizeQueue();
+          if (!optimizationResult?.success) {
+            setOptimizationStatus(
+              optimizationResult?.message || 'Import succeeded, but queue optimization did not complete.'
+            );
+          }
+        } catch (optimizationError) {
+          setOptimizationStatus(
+            'Import succeeded, but queue optimization could not complete. Please try again from the dashboard.'
+          );
+        }
 
         setTimeout(() => {
           onUploadComplete({
@@ -223,8 +237,26 @@ export function UploadModal({ isOpen, onClose, onUploadComplete }) {
           }}>
             <CheckCircle2 size={16} />
             <div>
-              <strong>Success!</strong> Imported {uploadResult.count} tickets. Optimizing queue...
+              <strong>Success!</strong> Imported {uploadResult.count} tickets.
             </div>
+          </div>
+        )}
+
+        {optimizationStatus && (
+          <div style={{
+            background: 'rgba(249, 115, 22, 0.12)',
+            border: '1px solid rgba(249, 115, 22, 0.4)',
+            color: '#fbbf24',
+            padding: '12px 14px',
+            borderRadius: '4px',
+            marginBottom: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '0.85rem'
+          }}>
+            <AlertTriangle size={16} />
+            <span>{optimizationStatus}</span>
           </div>
         )}
 

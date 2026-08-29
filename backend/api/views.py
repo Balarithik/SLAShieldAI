@@ -356,9 +356,17 @@ class TicketDetailView(APIView):
 
 class QueueOptimizeView(APIView):
     def post(self, request):
-        weights = request.data.get('weights')
-        results = QueueService.run_optimization(weights=weights)
-        return Response(results)
+        try:
+            weights = request.data.get('weights')
+            results = QueueService.run_optimization(weights=weights)
+            return Response(results)
+        except Exception as exc:
+            logger.exception("Queue optimization failed.")
+            return Response({
+                "success": False,
+                "message": "Queue optimization failed while processing the uploaded queue.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class QueueCurrentView(APIView):

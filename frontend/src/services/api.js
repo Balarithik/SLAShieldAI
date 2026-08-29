@@ -12,6 +12,31 @@ const normalizeApiBase = () => {
 
 const API_BASE = normalizeApiBase();
 
+async function parseJsonResponse(res, defaultMessage = 'Request failed.') {
+  const contentType = res.headers.get('content-type') || '';
+  let payload = {};
+
+  if (contentType.includes('application/json')) {
+    payload = await res.json().catch(() => ({}));
+  } else {
+    const text = await res.text().catch(() => '');
+    if (text) {
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        payload = { message: text };
+      }
+    }
+  }
+
+  if (!res.ok) {
+    const errorMessage = payload?.error || payload?.message || payload?.detail || defaultMessage;
+    throw new Error(errorMessage);
+  }
+
+  return payload;
+}
+
 export const api = {
   async getHealth() {
     const res = await fetch(`${API_BASE}/health/`, {
@@ -51,18 +76,18 @@ export const api = {
 
   async getDashboardMetrics() {
     const res = await fetch(`${API_BASE}/dashboard/metrics/`);
-    return res.json();
+    return parseJsonResponse(res, 'Dashboard metrics request failed.');
   },
 
   async getTickets(params = {}) {
     const query = new URLSearchParams(params).toString();
     const res = await fetch(`${API_BASE}/tickets/${query ? '?' + query : ''}`);
-    return res.json();
+    return parseJsonResponse(res, 'Failed to load tickets.');
   },
 
   async getTicket(id) {
     const res = await fetch(`${API_BASE}/tickets/${id}/`);
-    return res.json();
+    return parseJsonResponse(res, `Failed to load ticket ${id}.`);
   },
 
   async createTicket(data) {
@@ -71,7 +96,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    return res.json();
+    return parseJsonResponse(res, 'Failed to create ticket.');
   },
 
   async updateTicket(id, data) {
@@ -80,14 +105,14 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    return res.json();
+    return parseJsonResponse(res, 'Failed to update ticket.');
   },
 
   async deleteTicket(id) {
     const res = await fetch(`${API_BASE}/tickets/${id}/`, {
       method: 'DELETE',
     });
-    return res.json();
+    return parseJsonResponse(res, 'Failed to delete ticket.');
   },
 
   async uploadTickets(formData) {
@@ -95,7 +120,7 @@ export const api = {
       method: 'POST',
       body: formData,
     });
-    return res.json();
+    return parseJsonResponse(res, 'Upload failed. Please check the backend connection and try again.');
   },
 
   async optimizeQueue(weights = null) {
@@ -104,27 +129,27 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ weights }),
     });
-    return res.json();
+    return parseJsonResponse(res, 'Queue optimization failed.');
   },
 
   async getBeforeQueue() {
     const res = await fetch(`${API_BASE}/queue/before/`);
-    return res.json();
+    return parseJsonResponse(res, 'Failed to load before queue.');
   },
 
   async getAfterQueue() {
     const res = await fetch(`${API_BASE}/queue/after/`);
-    return res.json();
+    return parseJsonResponse(res, 'Failed to load after queue.');
   },
 
   async getQueueHistory() {
     const res = await fetch(`${API_BASE}/queue/history/`);
-    return res.json();
+    return parseJsonResponse(res, 'Failed to load queue history.');
   },
 
   async getAnalysts() {
     const res = await fetch(`${API_BASE}/analysts/`);
-    return res.json();
+    return parseJsonResponse(res, 'Failed to load analysts.');
   },
 
   async createAnalyst(data) {
@@ -133,7 +158,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    return res.json();
+    return parseJsonResponse(res, 'Failed to create analyst.');
   },
 
   async updateAnalyst(id, data) {
@@ -142,19 +167,19 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    return res.json();
+    return parseJsonResponse(res, 'Failed to update analyst.');
   },
 
   async deleteAnalyst(id) {
     const res = await fetch(`${API_BASE}/analysts/${id}/`, {
       method: 'DELETE',
     });
-    return res.json();
+    return parseJsonResponse(res, 'Failed to delete analyst.');
   },
 
   async getSLARules() {
     const res = await fetch(`${API_BASE}/sla-rules/`);
-    return res.json();
+    return parseJsonResponse(res, 'Failed to load SLA rules.');
   },
 
   async updateSLARules(rules) {
@@ -163,12 +188,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rules }),
     });
-    return res.json();
+    return parseJsonResponse(res, 'Failed to update SLA rules.');
   },
 
   async getBreachTrends() {
     const res = await fetch(`${API_BASE}/breach-trends/`);
-    return res.json();
+    return parseJsonResponse(res, 'Failed to load breach trends.');
   },
 
   async generateScenario(scenario, count = 20, clearExisting = true) {
@@ -177,11 +202,11 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ scenario, count, clear_existing: clearExisting }),
     });
-    return res.json();
+    return parseJsonResponse(res, 'Failed to generate scenario data.');
   },
 
   async getMLPerformance() {
     const res = await fetch(`${API_BASE}/ml/performance/`);
-    return res.json();
+    return parseJsonResponse(res, 'Failed to load model performance.');
   }
 };
