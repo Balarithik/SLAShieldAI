@@ -18,12 +18,12 @@ def get_env_list(name, default=None):
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-sla-shield-ai-hackathon-2026-secure-key-998877')
 DEBUG = os.environ.get('DEBUG', 'False').lower() in {'1', 'true', 'yes', 'on'}
 
-ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', ['localhost', '127.0.0.1', '0.0.0.0'])
+ALLOWED_HOSTS = get_env_list('ALLOWED_HOSTS', ['localhost', '127.0.0.1', '0.0.0.0','https://main.d2yb8g0u2eg1wt.amplifyapp.com','https://slashieldai.onrender.com'])
 RENDER_HOST = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_HOST:
     ALLOWED_HOSTS.append(RENDER_HOST)
 
-DEFAULT_CORS = ['http://localhost:5173', 'http://127.0.0.1:5173']
+DEFAULT_CORS = ['http://localhost:5173', 'http://127.0.0.1:5173','https://main.d2yb8g0u2eg1wt.amplifyapp.com','https://slashieldai.onrender.com']
 CORS_ALLOWED_ORIGINS = get_env_list('CORS_ALLOWED_ORIGINS', DEFAULT_CORS)
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
