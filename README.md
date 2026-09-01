@@ -16,7 +16,7 @@ The repository contains a Django backend, a React frontend, six trained scikit-l
 
 ## Hackathon Problem Statement
 
-The official hackathon challenge asks for an AI system that predicts which security tickets are likely to breach SLA and recommends actions such as reassignment, escalation, or prioritization. The problem is operationally important because security incidents often arrive continuously, each with different severity, SLA requirements, historical context, queue conditions, and analyst capacity.
+AI system that predicts which security tickets are likely to breach SLA and recommends actions such as reassignment, escalation, or prioritization. The problem is operationally important because security incidents often arrive continuously, each with different severity, SLA requirements, historical context, queue conditions, and analyst capacity.
 
 A ticket may be at risk even when a countdown still shows remaining time because queue delay can rise, analyst workload can spike, higher-priority incidents may arrive, and resolution time can exceed the expected forecast. This creates business risk for the SOC and for the organization because missed SLAs can translate into delayed containment, lost trust, increased operational cost, and higher exposure.
 
